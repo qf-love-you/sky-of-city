@@ -1,0 +1,39 @@
+
+                # elif event.type == pygame.KEYDOWN:
+                #     if event.key == pygame.K_UP:
+                #         player.move_up()
+                #     elif event.key == pygame.K_DOWN:
+                #         player.move_down()
+                #     elif event.key == pygame.K_LEFT:
+                #         player.move_left()
+                #     elif event.key == pygame.K_RIGHT:
+                #         player.move_right()
+                # else:
+                #     key_list = pygame.key.get_pressed()
+                #
+                #     if key_list[pygame.K_UP]:
+                #         player.move_up()
+                #     elif key_list[pygame.K_DOWN]:
+                #         player.move_down()
+                #     elif key_list[pygame.K_LEFT]:
+                #         player.move_left()
+                #     elif key_list[pygame.K_RIGHT]:
+                #         player.move_right()
+
+            # if not pygame.key.get_focused():
+            #     # 模拟鼠标点击窗口来激活窗口
+            #     pyautogui.click(pygame.display.get_surface().get_rect().center)
+
+    # x_, x, y, k = 1.5, 1.5, 5, 0
+
+    '''
+    for i in range(len(var.monster_map1)):
+        x = x_
+        y += 1
+        for j in var.monster_map1[i]:
+            x += 1
+            k += 1
+            if j == 1:
+                Monster('images/monster/slime.png', x * 30, y * 30)
+                block1 = Block("images/block/砖块.gif", x * 30, y * 30)
+                floor_group.add(block1)'''
