@@ -3,9 +3,7 @@ Hello! Before playing this game, please be sure to take a look at this:
 Game version: v0.1.1
 Introduction: Game difficulty is extremely difficult! It's not about cheating or being unable to handle by experts (the author himself couldn't handle it)
 Expected updates:
-1. Archive function:
-Save game progress!
-2. Fix the bug in the Hell Map:
+1. Fix to smooth movement
 What else do you expect to see?
     
 ----------------------------------------------------------
@@ -73,6 +71,7 @@ Skull:
 
 ----------------------------------------------------------
 Import the source code of the library (I mean you can install these libraries in advance):
+
 import copy
 import ctypes
 import math
@@ -85,15 +84,15 @@ from tkinter import messagebox as me
 import keyboard as kb
 import pygame
 from PyQt5 import QtWidgets, QtCore, QtGui
+import var
 
 ----------------------------------------------------------
 Side effects and drawbacks:
-1. There will be a gap between the player's first and second movements
-2. There are some issues with the monster's pathfinding mechanism
-3. Mac players may have some differences
-4. Only users who shift between Chinese and English keys can enjoy the option of not manually switching between Chinese and English keys
-5. This game cannot be saved (temporary)
-6. There may be some unknown issues for the author, thank you for raising them to me!
+1. There are some issues with the monster's pathfinding mechanism
+2. Mac players may have some differences
+3. Only users who shift between Chinese and English keys can enjoy the option of not manually switching between Chinese and English keys
+4. This game cannot be saved (temporary)
+5. There may be some unknown issues for the author, thank you for raising them to me!
 
 ----------------------------------------------------------
 Info1: Wave number: 11, difficulty level is 5 stars (highly recommended for this map)

@@ -127,6 +127,7 @@ class Player(pygame.sprite.Sprite):
         self.maxmagic = 100
         self.parts = 10
         self.damage = 1
+        self.speed = 2
     
     def add_part(self):
         self.parts += 1
@@ -159,13 +160,13 @@ class Player(pygame.sprite.Sprite):
                 self.move = False
         
         if self.move:
-            self.rect.x += 5
+            self.rect.x += self.speed
             if self.mirror:
                 self.image = pygame.transform.flip(self.image, True, False)
                 self.mirror = False
             for i in block_group:
                 if pygame.sprite.collide_mask(self, i) is not None:
-                    self.rect.x -= 5
+                    self.rect.x -= self.speed
                     break
             time.sleep(0.01)
     
@@ -181,17 +182,17 @@ class Player(pygame.sprite.Sprite):
                 self.move = False
         
         if self.move:
-            self.rect.x -= 5
+            self.rect.x -= self.speed
             if not self.mirror:
                 self.image = pygame.transform.flip(self.image, True, False)
                 self.mirror = True
             for i in block_group:
                 if pygame.sprite.collide_mask(self, i) is not None:
-                    self.rect.x += 5
+                    self.rect.x += self.speed
                     break
             time.sleep(0.01)
         else:
-            self.rect.x += 5
+            self.rect.x += self.speed
     
     def move_up(self):
         global block_group
@@ -205,14 +206,14 @@ class Player(pygame.sprite.Sprite):
                 self.move = False
         
         if self.move:
-            self.rect.y -= 5
+            self.rect.y -= self.speed
             for i in block_group:
                 if pygame.sprite.collide_mask(self, i) is not None:
-                    self.rect.y += 5
+                    self.rect.y += self.speed
                     break
             time.sleep(0.01)
         else:
-            self.rect.y += 5
+            self.rect.y += self.speed
     
     def move_down(self):
         global block_group
@@ -226,14 +227,14 @@ class Player(pygame.sprite.Sprite):
                 self.move = False
         
         if self.move:
-            self.rect.y += 5
+            self.rect.y += self.speed
             for i in block_group:
                 if pygame.sprite.collide_mask(self, i) is not None:
-                    self.rect.y -= 5
+                    self.rect.y -= self.speed
                     break
             time.sleep(0.01)
         else:
-            self.rect.y -= 5
+            self.rect.y -= self.speed
     
     def set_pos(self, x, y):
         self.rect.x, self.rect.y = x, y
@@ -976,9 +977,11 @@ def draw():
 def func1():
     while True:
         if not stop:
-            kb.wait('j')
-            weapon1.fight_throw('')
-            time.sleep(2)
+            keys_pressed = pygame.key.get_pressed()
+            if keys_pressed[pygame.K_j]:
+                weapon1.fight_throw('')
+                time.sleep(2)
+            clock.tick(80)
 
 def func2():
     while True:
@@ -986,7 +989,7 @@ def func2():
             if not i.moving:
                 i.moves()
                 i.moving = True
-        clock.tick(50)
+        clock.tick(80)
 
 def func3():
     while True:
@@ -1015,7 +1018,7 @@ def func4():
                 player.health = 0
             time.sleep(0.3)
 
-def func5():
+'''def func5():
     def up():
         while True:
             kb.wait('w')
@@ -1048,7 +1051,22 @@ def func5():
     thr.Thread(target=up).start()
     thr.Thread(target=down).start()
     thr.Thread(target=left).start()
-    thr.Thread(target=right).start()
+    thr.Thread(target=right).start()'''
+
+def func5():
+    def x():
+        while True:
+            keys_pressed = pygame.key.get_pressed()
+            if keys_pressed[pygame.K_d] or keys_pressed[pygame.K_RIGHT]:
+                player.move_right()
+            if keys_pressed[pygame.K_a] or keys_pressed[pygame.K_LEFT]:
+                player.move_left()
+            if keys_pressed[pygame.K_w] or keys_pressed[pygame.K_UP]:
+                player.move_up()
+            if keys_pressed[pygame.K_s] or keys_pressed[pygame.K_DOWN]:
+                player.move_down()
+            clock.tick(80)
+    thr.Thread(target=x).start()
 
 def func6():
     while True:
@@ -1060,19 +1078,24 @@ def func6():
 
 def func7():
     while True:
-        kb.wait('i')
-        if player.magic - 30 >= 0 and not stop:
-            player.magic -= 30
-            player.and_health(200)
-            time.sleep(15)
+        keys_pressed = pygame.key.get_pressed()
+        if keys_pressed[pygame.K_i]:
+            if player.magic - 30 >= 0 and not stop:
+                player.magic -= 30
+                player.and_health(200)
+                time.sleep(15)
+            
+        clock.tick(80)
 
 def func8():
     while True:
-        kb.wait('f')
-        if player.magic - 50 >= 0 and not stop:
-            player.magic -= 50
-            boom()
-            time.sleep(10)
+        keys_pressed = pygame.key.get_pressed()
+        if keys_pressed[pygame.K_f]:
+            if player.magic - 50 >= 0 and not stop:
+                player.magic -= 50
+                boom()
+                time.sleep(10)
+        clock.tick(80)
 
 def func9(_):
     global stop
@@ -1083,6 +1106,14 @@ def func9(_):
 #         for i in bottle_group:
 #             i.scan()
 #         time.sleep(0.01)
+
+def func10():
+    while True:
+        keys_pressed = pygame.key.get_pressed()
+        if keys_pressed[pygame.K_k]:
+            weapon1.fight_cut()
+            time.sleep(0.2)
+        clock.tick(80)
 
 def exec_app():
     app.exec_()
@@ -1462,7 +1493,7 @@ def init():
         
         thr.Thread(target=func5).start()
         
-        kb.add_hotkey('k', weapon1.fight_cut)
+        # kb.add_hotkey('k', weapon1.fight_cut)
         kb.on_press_key('o', func9)
         kb.add_hotkey('spacebar', game_stop)
         
@@ -1474,7 +1505,7 @@ def init():
         thr.Thread(target=func4).start()
         thr.Thread(target=func7).start()
         thr.Thread(target=func8).start()
-        # thr.Thread(target=func10).start()
+        thr.Thread(target=func10).start()
         # thr.Thread(target=func11).start()
         thr.Thread(target=run_debug).start()
         thr.Thread(target=run_command).start()
@@ -1563,4 +1594,4 @@ def start_():
 
 if __name__ == '__main__':
     start_()
-    # 1566
+    # 1597
