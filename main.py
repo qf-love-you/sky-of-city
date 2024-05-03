@@ -143,6 +143,9 @@ class Player(pygame.sprite.Sprite):
                         elif i.id == 4:
                             self.health -= 100
                             time.sleep(0.5)
+                        elif i.id == 5:
+                            self.health -= 500
+                            time.sleep(1)
     
     def move_right(self):
         global block_group
@@ -379,12 +382,12 @@ class Throw_weapon(pygame.sprite.Sprite):
             
             for i in monster_group:
                 if pygame.sprite.collide_mask(self, i) is not None:
-                    i.hurt(rd.randint(200 * player.damage, 300 * player.damage), part_sound, part_group)
+                    thr.Thread(target=i.hurt, args=(rd.randint(200 * player.damage, 300 * player.damage), part_sound, part_group)).start()
                     weapon_group.remove(self)
                     self.kill()
                     break
             
-            clock.tick(50)
+            # clock.tick(50)
     
     def get_p(self):
         if pygame.sprite.spritecollideany(self, block_group) is not None:
@@ -498,42 +501,48 @@ class Monster(pygame.sprite.Sprite):
             self.health -= health
             
             if self.health <= 0:
-                self.isalive = False
-                self.health = -1
-                # thr.Thread(target=self.scan).start()
-                for i in range(0, 255, 3):
-                    self.image.set_alpha(255 - i)
-                    time.sleep(0.01)
-                if rd.randint(0, 4) == 0:
-                    tP.part1(player, part_sound, (self.rect.x, self.rect.y), player.add_part, part_group)
-                
-                self.kill()
+                try:
+                    self.isalive = False
+                    self.health = -1
+                    # thr.Thread(target=self.scan).start()
+                    for i in range(0, 255, 3):
+                        self.image.set_alpha(255 - i)
+                        time.sleep(0.01)
+                    if rd.randint(0, 4) == 0:
+                        tP.part1(player, part_sound, (self.rect.x, self.rect.y), player.add_part, part_group)
+
+                    self.kill()
+                except Exception as e:
+                    win3.write('error', e)
             
             if self.health > 0:
                 try:
                     # self.cd = 1
-                    
+
                     self.image_hurt()
-                    
+
                     thr.Thread(target=self.scan).start()
-                    
+
                     time.sleep(0.5)
                     # self.cd = 0
-                except:
-                    pass
+                except Exception as e:
+                    win3.write('error', e)
     
     def image_hurt(self):
         thr.Thread(target=self.image_hurt_).start()
     
     def image_hurt_(self):
         if self.health > 0:
-            self.image = pygame.image.load('images/monster/slime_hurt.png').convert_alpha()
-            self.image = pygame.transform.scale(self.image, (31, 31))
-            self.image = pygame.transform.flip(self.image, True, False)
-            time.sleep(0.3)
-            self.image = pygame.image.load('images/monster/slime.png').convert_alpha()
-            self.image = pygame.transform.scale(self.image, (31, 31))
-            self.image = pygame.transform.flip(self.image, True, False)
+            try:
+                self.image = pygame.image.load('images/monster/slime_hurt.png').convert_alpha()
+                self.image = pygame.transform.scale(self.image, (31, 31))
+                self.image = pygame.transform.flip(self.image, True, False)
+                time.sleep(0.3)
+                self.image = pygame.image.load('images/monster/slime.png').convert_alpha()
+                self.image = pygame.transform.scale(self.image, (31, 31))
+                self.image = pygame.transform.flip(self.image, True, False)
+            except Exception as e:
+                win3.write('error', e)
     
     def boom_(self):
         for i in boom_group:
@@ -886,6 +895,19 @@ class debug_win(QtWidgets.QMainWindow):
     
     def resizeEvent(self, a0: QtGui.QResizeEvent):
         self.textView.setGeometry(0, 0, self.width(), self.height())
+    
+    def write(self, level='info', ms=''):
+        if len(str(math.floor(run_time / 60))) == 1:
+            H = '0' + str(math.floor(run_time / 60))
+        else:
+            H = str(math.floor(run_time / 60))
+    
+        if len(str(run_time % 60)) == 1:
+            S = '0' + str(run_time % 60)
+        else:
+            S = str(run_time % 60)
+        self.textView.appendPlainText(f"[{H}:{S}][main/{level}]:{ms}")
+        
 
 '''def move_up():
     def one(i):
@@ -912,48 +934,44 @@ def updates():
     boom_group.update()
     particle_group.update()
 
-# except:
-#     pass
-
 def draw():
-        global blood_bar, magic, screen, bottle_group
-        
-        cloud_group.draw(screen)
-        
-        block_group.draw(screen)
-        
-        floor_group.draw(screen)
-        
-        damage_group.draw(screen)
-        
-        blood_bar.fill()
-        screen.blit(blood_bar.text, (blood_bar.gray_pos[0] + 20, blood_bar.gray_pos[1]))
-        
-        magic_bar.fill()
-        screen.blit(magic_bar.text, (magic_bar.gray_pos[0] + 20, magic_bar.gray_pos[1]))
-        
-        a_bullet_group.draw(screen)
-        
-        monster_group.draw(screen)
-        
-        people_group.draw(screen)
-        
-        part_group.draw(screen)
-        
-        bottle_group.draw(screen)
-        
-        weapon_group.draw(screen)
-        
-        text_group.draw(screen)
-        
-        boom_group.draw(screen)
-        
-        red_group.draw(screen)
-        
-        particle_group.draw(screen)
-        
-        clock.tick(50)
-
+    global blood_bar, magic, screen, bottle_group
+    
+    cloud_group.draw(screen)
+    
+    block_group.draw(screen)
+    
+    floor_group.draw(screen)
+    
+    damage_group.draw(screen)
+    
+    blood_bar.fill()
+    screen.blit(blood_bar.text, (blood_bar.gray_pos[0] + 20, blood_bar.gray_pos[1]))
+    
+    magic_bar.fill()
+    screen.blit(magic_bar.text, (magic_bar.gray_pos[0] + 20, magic_bar.gray_pos[1]))
+    
+    a_bullet_group.draw(screen)
+    
+    monster_group.draw(screen)
+    
+    people_group.draw(screen)
+    
+    part_group.draw(screen)
+    
+    bottle_group.draw(screen)
+    
+    weapon_group.draw(screen)
+    
+    text_group.draw(screen)
+    
+    boom_group.draw(screen)
+    
+    red_group.draw(screen)
+    
+    particle_group.draw(screen)
+    
+    clock.tick(50)
 
 def func1():
     while True:
@@ -1268,6 +1286,8 @@ def next_b():
                                 tP.Monster2('images/monster/blue_slime.png', x * 30, y * 30, player, monster_group, block_group, boom_group, text_group, bottle_group)
                             elif j == 3:
                                 tP.Monster3('images/monster/purple_slime.png', x * 30, y * 30, player, monster_group, block_group, boom_group, text_group)
+                            elif j == 4:
+                                tP.Monster4('images/monster/blue_slime.png', x * 30, y * 30, player, monster_group, block_group, boom_group, text_group, make_monster)
                     
                     b += 1
             elif var.terrain == 'hell':
@@ -1313,7 +1333,7 @@ def set_var():
         
         screen = pygame.display.set_mode((500, 500), pygame.SCALED)
         
-        pygame.display.set_caption('sky of city-0.1.0')
+        pygame.display.set_caption('sky of city-0.1.1')
         pygame.display.set_icon(pygame.image.load('images/icon.ico').convert_alpha())
         
         font = pygame.font.Font('fonts/font1.ttf', 20)
@@ -1369,6 +1389,16 @@ def set_var():
         red_group = pygame.sprite.Group(red())
     except:
         pass
+
+def make_monster(x, y, id_):
+    if id_ == 1:
+        Monster('images/monster/slime.png', x, y)
+    if id_ == 2:
+        tP.Monster2('images/monster/blue_slime.png', x, y, player, monster_group, block_group, boom_group, text_group, bottle_group)
+    elif id_ == 3:
+        tP.Monster3('images/monster/purple_slime.png', x, y, player, monster_group, block_group, boom_group, text_group)
+    elif id_ == 4:
+        tP.Monster4('images/monster/blue_slime.png', x, y, player, monster_group, block_group, boom_group, text_group, make_monster)
 
 def init():
     try:
@@ -1433,7 +1463,6 @@ def init():
         thr.Thread(target=func5).start()
         
         kb.add_hotkey('k', weapon1.fight_cut)
-        kb.on_press_key('j', weapon1.fight_throw)
         kb.on_press_key('o', func9)
         kb.add_hotkey('spacebar', game_stop)
         
@@ -1516,17 +1545,7 @@ def start():
         except Exception as e:
             if debug:
                 try:
-                    if len(str(math.floor(run_time / 60))) == 1:
-                        H = '0' + str(math.floor(run_time / 60))
-                    else:
-                        H = str(math.floor(run_time / 60))
-                    
-                    if len(str(run_time % 60)) == 1:
-                        S = '0' + str(run_time % 60)
-                    else:
-                        S = str(run_time % 60)
-                    
-                    win3.textView.appendPlainText(f"[{H}:{S}][main/error]:{e}")
+                    win3.write('error', e)
                 except Exception as e:
                     print(e)
     
@@ -1544,4 +1563,4 @@ def start_():
 
 if __name__ == '__main__':
     start_()
-    # 1535
+    # 1566

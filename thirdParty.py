@@ -1,3 +1,5 @@
+import random
+
 try:
     import math
     import os
@@ -115,7 +117,7 @@ class Monster2(pygame.sprite.Sprite):
     def __init__(self, path, x, y, player, monster_group, block_group, boom_group, text_group, bottle_group):
         super().__init__()
         self.image = pygame.image.load(path).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (30, 25))
+        self.image = pygame.transform.scale(self.image, (31, 30))
         self.image = pygame.transform.flip(self.image, True, False)
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = x + 1, y
@@ -287,11 +289,11 @@ class Monster2(pygame.sprite.Sprite):
     def image_hurt_(self):
         if self.health > 0:
             self.image = pygame.image.load('images/monster/slime_hurt.png').convert_alpha()
-            self.image = pygame.transform.scale(self.image, (31, 35))
+            self.image = pygame.transform.scale(self.image, (31, 30))
             self.image = pygame.transform.flip(self.image, True, False)
             time.sleep(0.3)
             self.image = pygame.image.load('images/monster/blue_slime.png').convert_alpha()
-            self.image = pygame.transform.scale(self.image, (31, 25))
+            self.image = pygame.transform.scale(self.image, (31, 30))
             self.image = pygame.transform.flip(self.image, True, False)
     
     def boom_(self):
@@ -531,6 +533,242 @@ class Monster3(pygame.sprite.Sprite):
             time.sleep(0.3)
             self.image = pygame.image.load('images/monster/purple_slime.png').convert_alpha()
             self.image = pygame.transform.scale(self.image, (31, 30))
+            self.image = pygame.transform.flip(self.image, True, False)
+    
+    def boom_(self):
+        for i in self.boom_group:
+            if pygame.sprite.collide_mask(self, i):
+                self.must_hurt(8)
+                time.sleep(0.05)
+    
+    def scan(self):
+        if self.rect.x >= self.player.rect.x:
+            if self.rect.y > self.player.rect.y + 15 - 5:
+                self.rect.x += 20
+                self.rect.y += 5
+                for i in self.block_group:
+                    if pygame.sprite.collide_mask(i, self):
+                        self.rect.x -= 20
+                        self.rect.y -= 5
+            elif self.rect.y < self.player.rect.y + 5:
+                self.rect.x += 20
+                self.rect.y -= 5
+                for i in self.block_group:
+                    if pygame.sprite.collide_mask(i, self):
+                        self.rect.x -= 20
+                        self.rect.y += 5
+            else:
+                self.rect.x += 20
+                for i in self.block_group:
+                    if pygame.sprite.collide_mask(i, self):
+                        self.rect.x -= 20
+        elif self.rect.x < self.player.rect.x:
+            if self.rect.y > self.player.rect.y + 15 - 5:
+                self.rect.x -= 20
+                self.rect.y += 5
+                for i in self.block_group:
+                    if pygame.sprite.collide_mask(i, self):
+                        self.rect.x += 20
+                        self.rect.y -= 5
+            elif self.rect.y < self.player.rect.y + 5:
+                self.rect.x -= 20
+                self.rect.y -= 5
+                for i in self.block_group:
+                    if pygame.sprite.collide_mask(i, self):
+                        self.rect.x += 20
+                        self.rect.y += 5
+            elif self.player.rect.y - 5 <= self.rect.y <= self.player.rect.y + 5:
+                self.rect.x -= 20
+                for i in self.block_group:
+                    if pygame.sprite.collide_mask(i, self):
+                        self.rect.x += 20
+
+class Monster4(pygame.sprite.Sprite):
+    
+    def __init__(self, path, x, y, player, monster_group, block_group, boom_group, text_group, function):
+        super().__init__()
+        self.image = pygame.image.load(path).convert_alpha()
+        self.image = pygame.transform.scale(self.image, (60, 60))
+        self.image = pygame.transform.flip(self.image, True, False)
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = x + 1, y
+        self.health = 2000
+        self.cd = 0
+        self.id = 5
+        self.s = 0
+        self.isalive = True
+        self.move_ = True
+        self.monster_group = monster_group
+        self.player = player
+        self.block_group = block_group
+        self.boom_group = boom_group
+        self.text_group = text_group
+        self.function = function
+        self.moving = False
+        self.monster_group.add(self)
+    
+    def moves(self):
+        self.moving = True
+        thr.Thread(target=self.moves_).start()
+    
+    def moves_(self):
+        while True:
+            if not main.stop:
+                self.move()
+            time.sleep(0.05)
+    
+    def move(self):
+        if self.health > 0 and self.isalive == True:
+            if self.player.rect.x + 10 > self.rect.x:
+                self.rect.x += 1
+                for i in self.block_group:
+                    if pygame.sprite.collide_mask(i, self):
+                        if self.player.rect.y + 15 < self.rect.y:
+                            while pygame.sprite.collide_mask(i, self) and not pygame.sprite.collide_mask(self.player, self):
+                                self.rect.y -= 1
+                                time.sleep(0.01)
+                        elif self.player.rect.y + 15 > self.rect.y:
+                            while pygame.sprite.collide_mask(i, self) and not pygame.sprite.collide_mask(self.player, self):
+                                self.rect.y += 1
+                                time.sleep(0.01)
+                        else:
+                            for i in self.block_group:
+                                while pygame.sprite.collide_mask(i, self) and not pygame.sprite.collide_mask(self.player, self):
+                                    self.rect.x -= 1
+                                    time.sleep(0.01)
+        
+            elif self.player.rect.x + 10 < self.rect.x:
+                self.rect.x -= 1
+                for i in self.block_group:
+                    if pygame.sprite.collide_mask(i, self):
+                        if self.player.rect.y + 15 < self.rect.y:
+                            while pygame.sprite.collide_mask(i, self) and not pygame.sprite.collide_mask(self.player, self):
+                                self.rect.y -= 1
+                                time.sleep(0.01)
+                        elif self.player.rect.y + 15 > self.rect.y:
+                            while pygame.sprite.collide_mask(i, self) and not pygame.sprite.collide_mask(self.player, self):
+                                self.rect.y += 1
+                                time.sleep(0.01)
+                        else:
+                            for i in self.block_group:
+                                while pygame.sprite.collide_mask(i, self) and not pygame.sprite.collide_mask(self.player, self):
+                                    self.rect.y += 1
+                                    time.sleep(0.01)
+        
+            elif self.player.rect.y + 15 < self.rect.y:
+                self.rect.y -= 1
+                for i in self.block_group:
+                    if pygame.sprite.collide_mask(i, self):
+                        if self.player.rect.x + 10 > self.rect.x:
+                            while pygame.sprite.collide_mask(i, self) and not pygame.sprite.collide_mask(self.player, self):
+                                self.rect.x += 1
+                                time.sleep(0.01)
+                        elif self.player.rect.x + 10 < self.rect.x:
+                            while pygame.sprite.collide_mask(i, self) and not pygame.sprite.collide_mask(self.player, self):
+                                self.rect.x -= 1
+                                time.sleep(0.01)
+                        else:
+                            for i in self.block_group:
+                                while pygame.sprite.collide_mask(i, self) and not pygame.sprite.collide_mask(self.player, self):
+                                    self.rect.x -= 1
+                                    time.sleep(0.01)
+        
+            elif self.player.rect.y + 15 > self.rect.y:
+                self.rect.y += 1
+                for i in self.block_group:
+                    if pygame.sprite.collide_mask(i, self):
+                        if self.player.rect.x + 10 > self.rect.x:
+                            while pygame.sprite.collide_mask(i, self) and not pygame.sprite.collide_mask(self.player, self):
+                                self.rect.x += 1
+                                time.sleep(0.01)
+                        elif self.player.rect.x + 10 < self.rect.x:
+                            while pygame.sprite.collide_mask(i, self) and not pygame.sprite.collide_mask(self.player, self):
+                                self.rect.x -= 1
+                                time.sleep(0.01)
+                        else:
+                            for i in self.block_group:
+                                while pygame.sprite.collide_mask(i, self) and not pygame.sprite.collide_mask(self.player, self):
+                                    self.rect.x += 1
+                                    time.sleep(0.01)
+    
+    def hurt(self, health, part_sound, part_group):
+        if self.cd == 0 and self.isalive == True and not main.stop:
+            
+            self.health -= health
+            
+            if self.s <= 17:
+                self.s += 3
+            
+            if random.randint(1, 3) == 1:
+                self.function(self.rect.centerx, self.rect.centery, random.randint(1, 3))
+            
+            if self.health <= 0:
+                self.isalive = False
+                self.health = -1
+                
+                for i in range(0, 255, 3):
+                    self.image.set_alpha(255 - i)
+                    time.sleep(0.01)
+                
+                if rd.randint(0, 2) == 0:
+                    part1(self.player, part_sound, (self.rect.x, self.rect.y), self.player.add_part, part_group)
+                    part1(self.player, part_sound, (self.rect.x, self.rect.y), self.player.add_part, part_group)
+                    part1(self.player, part_sound, (self.rect.x, self.rect.y), self.player.add_part, part_group)
+                    part1(self.player, part_sound, (self.rect.x, self.rect.y), self.player.add_part, part_group)
+                
+                self.kill()
+            
+            if self.health > 0:
+                try:
+                    self.cd = 1
+                    
+                    self.image_hurt()
+                    
+                    thr.Thread(target=self.scan).start()
+                    
+                    time.sleep(0.5)
+                    self.cd = 0
+                except:
+                    pass
+    
+    def must_hurt(self, health):
+        if self.cd == 0 and self.isalive == True and not main.stop:
+            
+            self.health -= health
+            
+            if self.health <= 0:
+                self.isalive = False
+                self.health = -1
+                # thr.Thread(target=self.scan).start()
+                for i in range(0, 255, 3):
+                    self.image.set_alpha(255 - i)
+                    time.sleep(0.01)
+                self.kill()
+            
+            if self.health > 0:
+                try:
+                    self.cd = 1
+                    
+                    self.image_hurt()
+                    
+                    thr.Thread(target=self.scan).start()
+                    
+                    time.sleep(0.5)
+                    self.cd = 0
+                except:
+                    pass
+    
+    def image_hurt(self):
+        thr.Thread(target=self.image_hurt_).start()
+    
+    def image_hurt_(self):
+        if self.health > 0 and not main.stop:
+            self.image = pygame.image.load('images/monster/slime_hurt.png').convert_alpha()
+            self.image = pygame.transform.scale(self.image, (62-self.s, 60-self.s))
+            self.image = pygame.transform.flip(self.image, True, False)
+            time.sleep(0.3)
+            self.image = pygame.image.load('images/monster/blue_slime.png').convert_alpha()
+            self.image = pygame.transform.scale(self.image, (62-self.s, 60-self.s))
             self.image = pygame.transform.flip(self.image, True, False)
     
     def boom_(self):
